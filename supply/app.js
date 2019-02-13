@@ -3,7 +3,6 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-//
 var fabric_client = new Fabric_Client();
 
 // setup the fabric network
@@ -14,7 +13,6 @@ var order = fabric_client.newOrderer('grpc://localhost:7050')
 channel.addOrderer(order);
 
 
-//
 var store_path = path.join(__dirname, 'hfc-key-store');
 console.log('Store path:' + store_path);
 var tx_id = null;
@@ -36,7 +34,7 @@ app.get('/test', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 app.all('/invoice', function (req, res) {
-
+ var user = req.headers.user
 
   // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
   Fabric_Client.newDefaultKeyValueStore({
@@ -52,13 +50,13 @@ app.all('/invoice', function (req, res) {
     fabric_client.setCryptoSuite(crypto_suite);
 
     // get the enrolled user from persistence, this user will sign all requests
-    return fabric_client.getUserContext('user1', true);
+    return fabric_client.getUserContext(user, true);
   }).then((user_from_store) => {
     if (user_from_store && user_from_store.isEnrolled()) {
-      console.log('Successfully loaded user1 from persistence');
+      console.log(`Successfully loaded ${user} from persistence`);
       member_user = user_from_store;
     } else {
-      throw new Error('Failed to get user1.... run registerUser.js');
+      throw new Error(`Failed to get ${user}....`);
     }
 
     // get a transaction id object based on the current user assigned to fabric client
@@ -129,7 +127,7 @@ app.all('/invoice', function (req, res) {
       isProposalGood = true;
       console.log('Transaction proposal was good');
     } else {
-      console.error('Transaction proposal was bad');
+      console.error('Transaction proposal was bad')
     }
     if (isProposalGood) {
       console.log(util.format(
@@ -193,6 +191,7 @@ app.all('/invoice', function (req, res) {
     } else {
       console.error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
       throw new Error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
+      
     }
   }).then((results) => {
     console.log('Send transaction promise and event listener promise have completed');
@@ -212,12 +211,9 @@ app.all('/invoice', function (req, res) {
   }).catch((err) => {
     console.error('Failed to invoke successfully :: ' + err);
   });
-
-
 })
-
 app.get('/', function (req, res) {
-
+  var user = req.headers.user
 
 
   // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
@@ -234,13 +230,13 @@ app.get('/', function (req, res) {
     fabric_client.setCryptoSuite(crypto_suite);
 
     // get the enrolled user from persistence, this user will sign all requests
-    return fabric_client.getUserContext('user1', true);
+    return fabric_client.getUserContext(user, true);
   }).then((user_from_store) => {
     if (user_from_store && user_from_store.isEnrolled()) {
-      console.log('Successfully loaded user1 from persistence');
+      console.log(`Successfully loaded ${user} from persistence`);
       member_user = user_from_store;
     } else {
-      throw new Error('Failed to get user1.... run registerUser.js');
+      throw new Error(`Failed to get ${user}....`);
     }
 
     // queryCar chaincode function - requires 1 argument, ex: args: ['CAR4'],
@@ -248,9 +244,18 @@ app.get('/', function (req, res) {
     const request = {
       //targets : --- letting this default to the peers assigned to the channel
       chaincodeId: 'supply',
-      fcn: 'queryAllInvoices',
+      // fcn: 'queryAllInvoices',
+      fcn: 'queryInvoiceByType',
       args: ['']
     };
+
+    var invoice = [];
+    var invoiceNumber = req.body.invoicenumber
+    if(invoiceNumber) {
+      invoice.push(invoiceNumber);
+      request.fcn = 'getHistoryForInvoice'
+      request.args = invoice
+    }
 
 
     // send the query proposal to the peer
@@ -282,7 +287,7 @@ app.get('/', function (req, res) {
 //console.log("height:"+block.height);
 
 app.get('/block', function (req, res) {
-
+ var user = req.headers.user
 
   // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
   Fabric_Client.newDefaultKeyValueStore({
@@ -298,13 +303,13 @@ app.get('/block', function (req, res) {
     fabric_client.setCryptoSuite(crypto_suite);
 
     // get the enrolled user from persistence, this user will sign all requests
-    return fabric_client.getUserContext('user1', true);
+    return fabric_client.getUserContext(user, true);
   }).then((user_from_store) => {
     if (user_from_store && user_from_store.isEnrolled()) {
-      console.log('Successfully loaded user1 from persistence');
+      console.log(`Successfully loaded ${user} from persistence`);
       member_user = user_from_store;
     } else {
-      throw new Error('Failed to get user1.... run registerUser.js');
+      throw new Error(`Failed to get ${user}....`);
     }
 
 
