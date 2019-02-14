@@ -229,7 +229,3 @@ Source: https://medium.com/kago/tutorial-to-install-hyperledger-composer-on-wind
 Author: Eddie Kago
 Access: January 14, 2019
 Year: 2018
-
-
-
-
