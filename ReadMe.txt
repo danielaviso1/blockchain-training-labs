@@ -55,6 +55,24 @@ Click merge if already exist
 Go back to terminal 
 Type "cd supply"
 
+Download the required library for our chaincode 
+Go language must be installed 
+type this to terminal
+
+go get github.com/golang/protobuf/proto
+go get github.com/hyperledger/fabric/common/attrmgr
+go get github.com/pkg/errors
+go get github.com/hyperledger/fabric/core/chaincode/lib/cid
+
+now open file manager go to Home/go/src/github.com
+copy three folders
+
+hyperledger
+pkg
+golang
+
+paste it inside fabric-sample/chaincode
+
 ========================================
 Step 7: Start the fabric
 
